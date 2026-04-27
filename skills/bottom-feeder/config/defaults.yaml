@@ -1,0 +1,48 @@
+max_topics_per_run: 2
+default_topics_per_run: 1
+mode: routine
+
+# Spend controls
+# Provider-agnostic: works with Anthropic, OpenAI, Venice/Diem, or any provider.
+# Set min_reserve_usd to keep a safety buffer (0 = no reserve).
+# Legacy Diem fields kept for backward compatibility.
+allow_burn_mode: true
+min_reserve_usd: 0
+min_reserve_diem: 2.0
+
+# Optional per-topic cost caps (provider-agnostic relative units)
+max_estimated_cost_units_per_topic_routine: 0.25
+max_estimated_cost_units_per_topic_burn: 3.0
+
+# Legacy aliases (kept for backward compatibility with older prompts/docs)
+max_estimated_diem_per_topic_routine: 0.25
+max_estimated_diem_per_topic_burn: 3.0
+
+# Multi-profile support
+# If your provider has multiple auth profiles (e.g., team seats, API keys),
+# set auth_profiles to track rotation. Agent will flag when a profile is exhausted.
+# auth_profiles: 1  # default: single profile, no rotation needed
+
+# Optional tide-pools package hook (if installed)
+usage_probe_script: scripts/provider-usage.sh
+
+# Source defaults
+default_sources:
+  - brave
+  - knowledge-search
+optional_sources:
+  - perplexity
+  - twitter
+  - coingecko
+  - coinmarketcap
+  - browser
+
+# Output defaults
+write_topics_dir: knowledge/topics
+write_research_dir: knowledge/research
+max_lines_soft_cap: 300
+append_update_section: true
+
+# Scheduling hints (for cron payload text)
+recommended_schedule_local_time: "02:30"
+recommended_timezone: "America/Los_Angeles"
