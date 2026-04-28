@@ -1,0 +1,117 @@
+# Web Extract Backends — Configuration Template
+
+Copy this file to `backends.md` and fill in the env var names or 1Password references for your environment.
+
+---
+
+## Canonical roles
+
+| Backend | Canonical role | Default? | Notes |
+|---|---|---|---|
+| Lightweight retrieval (`web_search`, simple `browser`) | discovery, quick reads, easy public pages | Yes | always prefer when enough |
+| Browserless (`/stealth/bql`, `/unblock`) | protected extraction plus programmable browser control | Yes, for hard server-side extraction | strongest path for Cloudflare/bot-gated reads |
+| TinyFish Browser API (CDP session) | remote stealth browser primitive for brittle or multi-step flows | Secondary / situational | works on protected pages when used as a browser session |
+| Rainforest API | Amazon structured data | No | opt-in / suggested use only, credit-sensitive |
+| OpenClaw browser | interactive human-visible browsing | No | use for login, 2FA, manual review, checkout |
+
+---
+
+## Secrets
+
+Fetch at runtime. **Never hardcode.**
+
+Recommended pattern — 1Password:
+```bash
+op read "op://YOUR_VAULT/TinyFish API Key/credential"
+op read "op://YOUR_VAULT/Browserless API Key/credential"
+op read "op://YOUR_VAULT/Rainforest API Key/password"
+```
+
+Or via environment variables:
+```bash
+export BROWSERLESS_TOKEN="..."
+export TINYFISH_API_KEY="..."
+export RAINFOREST_API_KEY="..."
+```
+
+---
+
+## Policy
+
+### Browserless first for protected extraction
+Prefer Browserless when the core problem is **getting through protection and extracting page data server-side**:
+- Cloudflare or bot-gated pages
+- protected price/history pages (e.g. CamelCamelCamel)
+- structured extraction from a protected page
+
+### TinyFish for browser-session control on hard pages
+Prefer TinyFish when the core problem is **needing a remote stealth browser you can control**:
+- brittle multi-step flows
+- custom CDP / Playwright-style control
+- cases where a higher-level agent run is too fuzzy but a full browser session helps
+
+**Important:** TinyFish's **Agent API** is not the default for Cloudflare-protected extraction. The confirmed working path is its **Browser API / CDP session**.
+
+### Rainforest only when worth a credit
+Use when:
+- user explicitly asks for it
+- structured Amazon data materially improves the result
+
+Avoid when:
+- casual browsing
+- historical price data (Rainforest doesn't solve that)
+- credit-constrained situations
+
+---
+
+## Bundled helper usage
+
+### Browserless helper
+
+```bash
+BROWSERLESS_TOKEN="<your token>" \
+  python3 skills/web-extract/scripts/browserless_extract.py \
+  <URL> \
+  --mode stealth-bql
+```
+
+Modes:
+- `stealth-bql` — best default for protected extraction
+- `unblock` — good for page HTML/content
+- `content` — basic headless fetch
+
+### TinyFish helper
+
+```bash
+TINYFISH_API_KEY="<your key>" \
+  python3 skills/web-extract/scripts/tinyfish_browser_extract.py \
+  <URL>
+```
+
+Creates a TinyFish browser session over CDP, navigates, waits, and returns normalized JSON.
+
+---
+
+## Endpoint reference
+
+| Service | Endpoint |
+|---|---|
+| Browserless `/content` | `https://production-sfo.browserless.io/content?token=<TOKEN>` |
+| Browserless `/unblock` | `https://production-sfo.browserless.io/unblock?token=<TOKEN>` |
+| Browserless `/stealth/bql` | `https://production-sfo.browserless.io/stealth/bql?token=<TOKEN>` |
+| TinyFish Browser API | `https://api.browser.tinyfish.ai/` (X-API-Key header) |
+| Rainforest API | See Rainforest documentation |
+
+---
+
+## Escalation order
+
+1. Lightweight: `web_search` / simple `browser`
+2. Browserless `/stealth/bql` or `/unblock`
+3. TinyFish Browser API / CDP session
+4. Interactive browser (human-present)
+5. Report blockage clearly
+
+---
+
+> **This is an example/template file.** Add your actual credentials and endpoints in your own `backends.md` (gitignored or kept local).
