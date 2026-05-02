@@ -89,3 +89,15 @@ When an interactive session teaches a reusable lesson:
 1. Update `references/progress.md`.
 2. Add or update a session log reference if the flow was substantial.
 3. Promote platform-specific findings to the relevant platform skill (`telegram-ui` or `slack-ui`) and to `knowledge/procedures/platform-message-formatting.md` when broadly applicable.
+
+
+## Plugin Command Steering Shortcut
+
+Not every button-driven plugin needs a full interactive session. If each button simply chooses a slash-command branch, use the plugin command steering shortcut:
+
+- no-args command returns a button menu;
+- Telegram button `callback_data` is the literal command plus arg, e.g. `/health hardware`;
+- the plugin's normal `acceptsArgs` handler runs the selected branch without an LLM;
+- fallback text lists the same commands for non-button surfaces.
+
+Use full interactive-session design only when there is multi-step state, user-specific choices, edit-in-place behavior, voting, or a deliverable beyond one command branch.

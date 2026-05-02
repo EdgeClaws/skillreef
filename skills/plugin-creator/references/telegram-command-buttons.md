@@ -236,3 +236,32 @@ Practical rule: **try `/think` style if the SDK exposes it; otherwise use presen
 - `projects/interactive-sessions/README.md`
 - `skills/telegram-buttons/SKILL.md`
 - `projects/interactive-sessions/research/slack-interactivity.md`
+
+
+## Pattern D — Telegram `channelData` Buttons That Reinvoke Plugin Slash Args
+
+WatchCatfish validated a simpler no-LLM branch pattern for plugin commands where a Telegram button can map directly to an ordinary slash command invocation. Instead of maintaining callback state, the menu returns Telegram-specific `channelData.telegram.buttons` and each button's `callback_data` is the exact command branch:
+
+```ts
+{ text: "🖥️ Hardware", callback_data: "/health hardware", style: "primary" }
+{ text: "🧰 Services", callback_data: "/health services", style: "success" }
+```
+
+Telegram callback dispatch presents that callback as synthetic text, so the command path receives `/health hardware` or `/health services` and the normal plugin `ctx.args` branch logic runs. This keeps the implementation reproducible and token-free: no LLM turn, no plugin interactive handler, and no long-lived button state.
+
+Use this pattern when all of these are true:
+
+- the button's meaning is equivalent to a slash command plus args;
+- branch names are short and safe to show as commands;
+- no pagination/back/edit-in-place state is needed;
+- non-Telegram users can use the same explicit text commands.
+
+Do **not** use it for opaque callback payloads, destructive actions needing confirmation state, or flows where buttons should edit the original message. For those, use `presentation.buttons` plus `api.registerInteractiveHandler(...)`.
+
+WatchCatfish also added aliases so human text and callback values converge:
+
+- `/health hardware` → `core` probe
+- `/health basic` → `core` probe
+- `/health services` → services probe
+
+This is currently the easiest reproducible pattern for “buttons steer a plugin but the plugin still owns the whole no-LLM execution path.”

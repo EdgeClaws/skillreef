@@ -222,3 +222,16 @@ Do a tiny proof-of-concept next: one plugin command `/branchdemo`, two buttons, 
 - Handler can edit/clear buttons and post the branch result.
 
 If that works, fold the resulting working plugin skeleton into `plugin-creator` as the canonical one-shot example.
+
+
+## Addendum: Even Simpler Pattern for Slash-Equivalent Branches
+
+After the first feasibility note, WatchCatfish proved a lower-overhead branch style for `/health`: return Telegram `channelData.telegram.buttons` whose `callback_data` values are literal command invocations such as `/health hardware` and `/health services`. Telegram routes those callbacks back as synthetic text, so the existing plugin command parser handles them as normal `ctx.args` branches.
+
+Recommendation update:
+
+- If the button can be represented as `/command arg`, use **button-steered slash args** first.
+- If the callback value is plugin-private state (`example:a`) or needs edit/clear-button behavior, use `presentation.buttons` + `api.registerInteractiveHandler(...)`.
+- If the UX needs pages/back/select/edit-in-place, use a custom interactive handler/picker.
+
+This makes two-branch no-LLM command plugins especially easy to reproduce.

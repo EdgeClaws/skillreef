@@ -25,6 +25,7 @@ Implementation requirements:
    - id: [PLUGIN_ID]
    - name: [HUMAN_NAME]
    - description: [ONE_SENTENCE_DESCRIPTION]
+   - activation.onStartup: false (unless the plugin must import during gateway startup)
    - empty config schema unless config is truly needed.
 2. Create/update `package.json` with:
    - `type: "module"`
@@ -35,6 +36,7 @@ Implementation requirements:
    - Prefer `definePluginEntry` from `openclaw/plugin-sdk/plugin-entry` when available.
    - Register the command with `api.registerCommand({ name, description, acceptsArgs, requireAuth, nativeProgressMessages, handler })`.
    - The command name must not include the leading slash.
+   - Guard side effects (DB connections, background workers, network clients) behind `api.registrationMode === "full"`. OpenClaw calls register() during discovery scans too.
 4. In the command handler:
    - Read raw args from the current plugin command context shape.
    - Validate args.
@@ -54,16 +56,17 @@ Implementation requirements:
 7. Add a README with install/test/use instructions.
 8. Add the smallest useful verification command/check for this repo.
 
-Research/verification sources to inspect before coding:
+Research/verification sources to inspect before coding (check /usr/lib or /usr/local/lib, whichever exists):
 - Local docs:
-  - `/usr/local/lib/node_modules/openclaw/docs/plugins/building-plugins.md`
-  - `/usr/local/lib/node_modules/openclaw/docs/plugins/sdk-entrypoints.md`
-  - `/usr/local/lib/node_modules/openclaw/docs/plugins/message-presentation.md`
-  - `/usr/local/lib/node_modules/openclaw/docs/tools/slash-commands.md`
-  - `/usr/local/lib/node_modules/openclaw/docs/snippets/plugin-publish/minimal-package.json`
+  - `{OPENCLAW_ROOT}/docs/plugins/building-plugins.md`
+  - `{OPENCLAW_ROOT}/docs/plugins/sdk-entrypoints.md`
+  - `{OPENCLAW_ROOT}/docs/plugins/message-presentation.md`
+  - `{OPENCLAW_ROOT}/docs/tools/slash-commands.md`
+  - `{OPENCLAW_ROOT}/docs/snippets/plugin-publish/minimal-package.json`
 - Local SDK/source types:
-  - `/usr/local/lib/node_modules/openclaw/dist/plugin-sdk/src/plugins/types.d.ts`
-  - `/usr/local/lib/node_modules/openclaw/dist/plugin-sdk/src/auto-reply/reply-payload.d.ts`
+  - `{OPENCLAW_ROOT}/dist/plugin-sdk/src/plugins/types.d.ts`
+  - `{OPENCLAW_ROOT}/dist/plugin-sdk/src/plugins/manifest.d.ts`
+  - `{OPENCLAW_ROOT}/dist/plugin-sdk/src/auto-reply/reply-payload.d.ts`
 - Live docs:
   - https://docs.openclaw.ai/plugins/building-plugins
   - https://docs.openclaw.ai/plugins/sdk-entrypoints
@@ -177,7 +180,7 @@ api.registerInteractiveHandler({
 
 ## Verification Checklist
 
-- `openclaw.plugin.json` exists and id matches the entry id.
+- `openclaw.plugin.json` exists, id matches the entry id, and `activation.onStartup` is set.
 - `package.json` declares OpenClaw extension entry paths.
 - `api.registerCommand(...)` is called exactly once per slash command.
 - Command name has no leading slash.

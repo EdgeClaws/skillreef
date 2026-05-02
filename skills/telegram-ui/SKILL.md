@@ -393,3 +393,26 @@ Never surface raw callback tokens as the primary UX.
 - **Raw HTML in message text** — gets escaped by OpenClaw's renderer
 
 These may become available in future OpenClaw versions.
+
+
+## Plugin Reply Buttons (`channelData.telegram.buttons`)
+
+For plugin command replies, there is a Telegram-specific path in addition to the normal `message` tool presentation path: a plugin handler can return `channelData.telegram.buttons` with Telegram-style rows of `{ text, callback_data }`. This is useful for no-LLM slash-command steering where the callback should re-enter the command path.
+
+Example:
+
+```ts
+return {
+  text: "Choose a report 👇\n\nOptions: 🖥️ Hardware · 🧰 Services",
+  channelData: {
+    telegram: {
+      buttons: [[
+        { text: "🖥️ Hardware", callback_data: "/health hardware" },
+        { text: "🧰 Services", callback_data: "/health services" }
+      ]]
+    }
+  }
+};
+```
+
+Use this for plugin-owned command menus only. For ordinary assistant sends with the `message` tool, keep using `presentation.blocks` buttons as documented above. Mirror the options in message text either way.
