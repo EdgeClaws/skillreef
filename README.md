@@ -14,6 +14,7 @@ A growing catalog of reusable OpenClaw skills.
 - `pdf-to-markdown` - Convert PDFs to Markdown with Docling.
 - `shell-swap` - Mass-switch OpenClaw model settings with codex/gpt/claude lane aliases.
 - `plugin-creator` - Create, design, review, and troubleshoot OpenClaw plugins, slash commands, message presentation buttons, and interactive handlers.
+- `ralph-wiggum` - Bounded iteration loop for small projects and prototypes with verification after each slice.
 - `shrimp` - Internal pass-through helper for `/shrimp` sub-agent dispatch.
 - `telegram-buttons` - Telegram inline button patterns and UX rules.
 
