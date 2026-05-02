@@ -10,6 +10,7 @@ A growing catalog of reusable OpenClaw skills.
 - `claude-foreman` - Dispatch heavy coding work to Claude CLI while OpenClaw orchestrates.
 - `knowledge-search` - Local semantic knowledge-base search with ChromaDB + Ollama.
 - `mermaid` - Mermaid diagram authoring and rendering workflow.
+- `moltmaster` - Controlled OpenClaw OAuth/auth-profile refresh operations with dry-run, backups, and provider guardrails.
 - `pdf-to-markdown` - Convert PDFs to Markdown with Docling.
 - `shell-swap` - Mass-switch OpenClaw model settings with codex/gpt/claude lane aliases.
 - `plugin-creator` - Create, design, review, and troubleshoot OpenClaw plugins, slash commands, message presentation buttons, and interactive handlers.
