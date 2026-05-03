@@ -115,9 +115,10 @@ Never claim completion without evidence. If no gate can run, say exactly why and
 
 ## Output Style
 
-When reporting to the user, keep it short:
+When reporting to the user, keep it short and include the run results:
 - What changed
-- Verification evidence
+- Iterations run: `<completed>/<max>` plus final state (`done`, `blocked`, or `stopped at limit`)
+- Verification evidence, including the final command/check and result
 - What remains, if anything
 
-Avoid dumping the whole loop log unless asked.
+If multiple iterations ran, summarize them in one compact line, e.g. `Iterations: 3/6 — pass, fail→fix, pass`. Avoid dumping the whole loop log unless asked.
