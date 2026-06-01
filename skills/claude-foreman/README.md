@@ -1,5 +1,10 @@
 # claude-foreman
 
+**Distribution mirror:** canonical source lives at `clawSean/claude-foreman`.
+
+This SkillReef copy is mirrored for collection-based installation. Make changes
+in the standalone repo first, then sync them here.
+
 OpenClaw skill for dispatching bounded planning, review, and implementation jobs to Claude CLI while keeping OpenClaw (a multi-channel agent gateway/orchestrator) in charge.
 
 Claude Foreman is useful when the main agent should keep ownership of the conversation, memory, project state, and user intent, but a slice of work benefits from Claude's separate context window and editing/review strengths. The orchestrator decides what to delegate; Claude executes the packet; the orchestrator reviews the result and reports back.
