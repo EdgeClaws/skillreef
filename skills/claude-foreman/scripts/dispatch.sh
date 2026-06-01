@@ -3,7 +3,7 @@
 # Usage: dispatch.sh <profile> <target_dir> "<prompt>" [extra_flags...]
 #
 # Profiles: plan, implement, review, wide-open, claws-out (legacy alias: unsafe)
-# Extra flags: --model opus, --worktree, --force, --max-turns N
+# Extra flags: --model sonnet, --worktree, --force, --max-turns N
 
 set -euo pipefail
 
@@ -66,25 +66,25 @@ case "$PROFILE" in
     PERM_MODE="plan"
     ALLOWED_TOOLS="Read,Glob,Grep,Bash(git:*)"
     MAX_TURNS="${EXTRA_MAX_TURNS:-15}"
-    DEFAULT_MODEL="sonnet"
+    DEFAULT_MODEL="opus"
     ;;
   implement)
     PERM_MODE="acceptEdits"
     ALLOWED_TOOLS="Read,Glob,Grep,Edit,Write,Bash(git:*,npm:*,npx:*,node:*,python:*,python3:*,pip:*,cargo:*,go:*,make:*,yarn:*,pnpm:*,bun:*,deno:*,pytest:*,jest:*,tsc:*,eslint:*,prettier:*)"
     MAX_TURNS="${EXTRA_MAX_TURNS:-30}"
-    DEFAULT_MODEL="sonnet"
+    DEFAULT_MODEL="opus"
     ;;
   review)
     PERM_MODE="plan"
     ALLOWED_TOOLS="Read,Glob,Grep,WebFetch,Bash(git:*),Bash(curl:*),Bash(wget:*)"
     MAX_TURNS="${EXTRA_MAX_TURNS:-15}"
-    DEFAULT_MODEL="sonnet"
+    DEFAULT_MODEL="opus"
     ;;
   wide-open|root-wide|claws-wide)
     PERM_MODE="dontAsk"
     ALLOWED_TOOLS="Read,Glob,Grep,Edit,MultiEdit,Write,WebFetch,Bash(*)"
     MAX_TURNS="${EXTRA_MAX_TURNS:-25}"
-    DEFAULT_MODEL="sonnet"
+    DEFAULT_MODEL="opus"
     ;;
   claws-out|unsafe)
     # keep `unsafe` as a compatibility alias
@@ -94,7 +94,7 @@ case "$PROFILE" in
     PERM_MODE="bypassPermissions"
     ALLOWED_TOOLS=""
     MAX_TURNS="${EXTRA_MAX_TURNS:-20}"
-    DEFAULT_MODEL="sonnet"
+    DEFAULT_MODEL="opus"
     ;;
   *)
     echo "[foreman] Unknown profile: $PROFILE (use: plan, implement, review, wide-open, claws-out)" >&2
@@ -279,6 +279,24 @@ fi
 
 if [[ "$STOP_REASON" == "max_turns" ]]; then
   echo "[foreman] WARNING: Hit turn limit — task may be incomplete." >&2
+fi
+
+if [[ "$STOP_REASON" == "tool_use" && -z "${RESULT_TEXT//[[:space:]]/}" ]]; then
+  ARTIFACT_DIR="$SKILL_DIR/artifacts"
+  mkdir -p "$ARTIFACT_DIR"
+  TS=$(date +%Y%m%d-%H%M%S)
+  OUT_ARTIFACT="$ARTIFACT_DIR/incomplete-${TS}-${PROFILE}.json"
+  ERR_ARTIFACT="$ARTIFACT_DIR/incomplete-${TS}-${PROFILE}.stderr"
+  cp "$TMPOUT" "$OUT_ARTIFACT" 2>/dev/null || true
+  cp "$TMPERR" "$ERR_ARTIFACT" 2>/dev/null || true
+  echo "[foreman] WARNING: Claude stopped at tool_use before writing a result." >&2
+  echo "[foreman] Raw stdout saved: $OUT_ARTIFACT" >&2
+  echo "[foreman] Raw stderr saved: $ERR_ARTIFACT" >&2
+  echo "[foreman] Tip: re-dispatch with more turns and add: 'End with a written summary even if you must stop inspecting files.'" >&2
+  if [[ -s "$OUT_ARTIFACT" ]]; then
+    echo "[foreman] Raw stdout tail:" >&2
+    tail -n 20 "$OUT_ARTIFACT" >&2 || true
+  fi
 fi
 
 if [[ -s "$TMPERR" ]]; then
