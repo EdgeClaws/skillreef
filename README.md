@@ -17,7 +17,6 @@ A growing catalog of reusable OpenClaw skills.
 - `ralph-wiggum` - Bounded iteration loop for small projects and prototypes with verification after each slice.
 - `shell-swap` - Mass-switch OpenClaw model settings with codex/gpt/claude lane aliases.
 - `shrimp` - Internal pass-through helper for `/shrimp` sub-agent dispatch.
-- `telegram-buttons` - Telegram inline button patterns and UX rules.
 - `telegram-ui` - Telegram rich chat UI patterns: inline buttons, polls, edits, replies, reactions, media, and pins via OpenClaw.
 
 ## Notes

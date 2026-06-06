@@ -234,7 +234,7 @@ Practical rule: **try `/think` style if the SDK exposes it; otherwise use presen
 
 - `projects/plugin-creator/research/one-shot-extension-prompt.md`
 - `projects/interactive-sessions/README.md`
-- `skills/telegram-buttons/SKILL.md`
+- `skills/telegram-ui/SKILL.md`
 - `projects/interactive-sessions/research/slack-interactivity.md`
 
 

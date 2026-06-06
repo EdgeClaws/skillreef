@@ -90,7 +90,7 @@ Distilled patterns from completed sessions. Updated after each game.
 - **Plugin command buttons:** `../../plugin-creator/references/telegram-command-buttons.md` — OpenClaw patterns for `/think`-style command arg menus, plugin `presentation.buttons` + interactive handlers, and `/models`-style custom Telegram pickers; relevant for turning interactive sessions into reusable plugin commands
 - **One-shot plugin prompt:** `../../plugin-creator/references/one-shot-extension-prompt.md` — template for generating a minimal OpenClaw extension with a chat slash command
 - **Slack skill:** `../slack-ui/SKILL.md` — covers Block Kit buttons, selects, multi-step patterns
-- **Telegram skill:** `../telegram-buttons/SKILL.md` — covers inline keyboards
+- **Telegram skill:** `../telegram-ui/SKILL.md` — covers inline buttons, polls, edits, replies, reactions, media, and pins
 - **Slack button patch required:** `patches/slack-reply-button-wake.md` — enables auto-continuation on button click
 - **State management:** Conversation history is the state store (no external DB needed for simple flows)
 - **Multi-player:** Works naturally — any channel member can click any button. Track `sender` from inbound metadata.
