@@ -19,6 +19,13 @@ A growing catalog of reusable OpenClaw skills.
 - `shrimp` - Internal pass-through helper for `/shrimp` sub-agent dispatch.
 - `telegram-ui` - Telegram rich chat UI patterns: inline buttons, polls, edits, replies, reactions, media, and pins via OpenClaw.
 
+## Companion kits
+
+- `x-twitter-kit` - X/Twitter access stack for OpenClaw: bundled Peeper no-credit public-account monitoring, xAI/Grok `x_search`, `xurl` OAuth setup, diagnostics, and posting safety. Canonical repo: https://github.com/clawSean/openclaw-x-twitter-kit
+
+Companion kits are indexed here for discovery but keep their source in their
+own repos when they carry larger docs, tests, fixtures, or setup flows.
+
 ## Notes
 
 - This repo contains the public-safe subset of the local custom skill library.
