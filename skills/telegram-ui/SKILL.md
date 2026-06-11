@@ -7,7 +7,7 @@ description: "Telegram chat UI: inline buttons, URL buttons, selects, polls, for
 Use this skill whenever sending interactive controls, rich formatting, polls, or media on Telegram through OpenClaw.
 
 For cross-platform orchestration of multi-step flows, also use `skills/interactive-sessions/SKILL.md`.
-Shared formatting source of truth: `knowledge/procedures/platform-message-formatting.md`.
+Cross-channel formatting index: `knowledge/procedures/platform-message-formatting.md`.
 
 ---
 

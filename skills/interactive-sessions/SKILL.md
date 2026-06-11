@@ -10,7 +10,7 @@ Use this skill for multi-step, button-driven chat experiences: games, brainstorm
 This is the high-level orchestration skill. For platform mechanics, also use:
 - Telegram: `skills/telegram-ui/SKILL.md`
 - Slack: `skills/slack-ui/SKILL.md`
-- Shared formatting source of truth: `knowledge/procedures/platform-message-formatting.md`
+- Cross-channel formatting index: `knowledge/procedures/platform-message-formatting.md`
 
 ## Fast Classifier
 
@@ -48,7 +48,9 @@ Do not use it for a single confirmation unless the prompt is part of a larger fl
 
 ## Telegram-Specific Rule
 
-On Telegram, always mirror button options in the message text because mobile may truncate or hide full button titles.
+For Telegram mechanics, send paths, and renderer caveats, use `skills/telegram-ui/SKILL.md`.
+
+Always mirror button options in the message text because Telegram mobile may truncate or hide full button titles.
 
 Pattern:
 
