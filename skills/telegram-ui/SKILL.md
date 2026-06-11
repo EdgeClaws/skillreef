@@ -7,7 +7,7 @@ description: "Telegram chat UI: inline buttons, URL buttons, selects, polls, for
 Use this skill whenever sending interactive controls, rich formatting, polls, or media on Telegram through OpenClaw.
 
 For cross-platform orchestration of multi-step flows, also use `skills/interactive-sessions/SKILL.md`.
-Shared formatting source of truth: `knowledge/procedures/platform-message-formatting.md`.
+House style (emoji density, bullets, spacing, reactions): `knowledge/procedures/telegram-formatting.md`.
 
 ---
 
@@ -30,19 +30,51 @@ A conversational suggestion list counts as a menu if the user is meant to pick f
 
 OpenClaw converts markdown-ish text to Telegram HTML (`parse_mode: "HTML"`).
 
-**What works in normal messages:**
-- `**bold**` or `__bold__` → renders bold
+**What works in normal messages (markdown-ish → Telegram HTML):**
+- `**bold**` or `__bold__` → renders bold (note: `__x__` is bold here, NOT underline)
 - `_italic_` → renders italic
+- `~~strikethrough~~` → renders strikethrough (`<s>`)
+- `||spoiler||` → renders native Telegram spoiler (`<tg-spoiler>`) — tap to reveal
+- `> quoted line` → renders native Telegram blockquote (`<blockquote>`)
 - `` `inline code` `` → renders monospace
 - ` ```lang\ncode\n``` ` → renders code block
 - bullet lists, numbered lists → render as text lines
 - links `[text](url)` → render as hyperlinks
 
-**What does NOT work:**
-- Raw HTML tags (`<b>`, `<tg-spoiler>`, etc.) are **escaped** by OpenClaw's outbound path. Do not use raw HTML in normal assistant messages — it will leak as literal text.
-- Markdown tables → not supported, use bullets or plain text
+*(strikethrough/spoiler/blockquote verified live 2026-06-10 — local docs at `docs/concepts/markdown-formatting.md` claiming spoilers are Signal-only are stale; the Telegram renderer passes `enableSpoilers: true`.)*
 
-**Telegram-native HTML** is only useful if you're going through a raw API path that bypasses OpenClaw's markdown renderer. For normal OpenClaw sends, stick to markdown-ish.
+**Nesting & edits (verified live 2026-06-10):**
+- Nesting works: bold/links inside spoilers, strike/spoilers inside blockquotes, bold+strike combos all render correctly
+- `action=edit` preserves all formatting — edited messages re-render markdown-ish the same as sends
+- ⚠️ **Spoiler link leak:** a `[link](url)` inside `||spoiler||` blurs the text but still generates a link preview card below the message, revealing the URL's destination. Don't put links in spoilers if the destination is the surprise.
+
+**Raw HTML passthrough (whitelist only):**
+
+OpenClaw's Telegram renderer **preserves** these raw HTML tags instead of escaping them:
+`<b> <strong> <i> <em> <u> <ins> <s> <strike> <del> <code> <pre> <tg-spoiler> <blockquote>` plus attribute forms `<a href="...">`, `<span class="tg-spoiler">`, `<tg-emoji emoji-id="...">`, `<tg-time datetime="...">`.
+
+Use raw HTML for the two things markdown-ish can't express:
+- **Underline:** `<u>underlined</u>` (markdown `__x__` gives bold, not underline)
+- **Date/time entity:** `<tg-time datetime="...">June 15</tg-time>` — ⚠️ API accepts the tag but it renders as **plain text** on iOS (verified via screenshot 2026-06-10). No date chip, no tap action. Don't bother — just write the date as text.
+
+Any tag NOT on the whitelist (`<div>`, `<script>`, etc.) is escaped and leaks as literal text.
+
+**Reading formatted inbound messages (what survives → agent):**
+- ✅ `~~strikethrough~~`, `||spoiler||`, `[label](url)` links — arrive as markdown markers, readable
+- ❌ blockquote formatting — arrives as plain text, no `>` prefix (can't tell it was a quote)
+- ❌ date entities — arrive as the display text only (no datetime metadata)
+
+**Tappable link rule:**
+- Do not rely on bare URLs in Telegram status replies. If a link should be tappable, write it as a markdown link: `[Status page](https://example.com/status)`.
+- For multiple links, use short labels instead of pasting raw URLs:
+  - `[Day 1 — Overview](https://example.com/day1)`
+  - `[Day 2 — Details](https://example.com/day2)`
+
+**What does NOT work:**
+- Raw HTML tags outside the whitelist above → escaped, leak as literal text
+- `<blockquote expandable>` → attribute not whitelisted, gets escaped (plain `<blockquote>` or `>` works)
+- Markdown tables → not supported, use bullets or plain text
+- Headings (`#`) → stripped to plain text (headingStyle: none)
 
 ---
 
@@ -291,6 +323,7 @@ Remove with `"remove": true`. Only unicode emoji supported (no custom emoji thro
 
 - `forceDocument: true` bypasses Telegram compression (sends as document)
 - Without it, images get compressed and GIFs may be converted to video
+- **Captions support full formatting** (bold, strike, spoiler, links — same markdown-ish renderer as message text; verified live 2026-06-10)
 
 ### Stickers
 
@@ -390,7 +423,8 @@ Never surface raw callback tokens as the primary UX.
 - **Reply keyboards** (custom keyboard replacing the system keyboard) — not exposed
 - **Request contact/location buttons** — not exposed
 - **Telegram MarkdownV2** — avoid; escaping is error-prone and OpenClaw uses HTML parse mode
-- **Raw HTML in message text** — gets escaped by OpenClaw's renderer
+- **Raw HTML outside the whitelist** — escaped by OpenClaw's renderer (see Formatting section for the allowed tags)
+- **Inbound blockquote/date metadata** — formatting markers for quotes and `tg-time` entities are stripped on inbound; only the text arrives
 
 These may become available in future OpenClaw versions.
 
